@@ -10,21 +10,27 @@ int main() {
     glfwMakeContextCurrent(window);
     gladLoadGL();
     // Pasos de LearnOpenGl
-    float vertices[] = {
+    float vertices1[] = {
 	    -0.5f, -0.5f, 0.0f,
+	     0.0f, -0.5f, 0.0f,
+	     -0.5f,  0.5f, 0.0f
+    };
+
+    float vertices2[] = {
+	    0.0f, -0.5f, 0.0f,
 	     0.5f, -0.5f, 0.0f,
-	     0.0f,  0.5f, 0.0f
+	     0.5f,  0.5f, 0.0f
     };
 
     //Vertex Array Object 
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    unsigned int VAO1, VAO2;
+    glGenVertexArrays(1, &VAO1);
+    glBindVertexArray(VAO1);
 
-    unsigned int VBO; //Vertex Buffer
-    glGenBuffers(1, &VBO); // Lo generamos
-    glBindBuffer(GL_ARRAY_BUFFER, VBO); // Lo seleccionamos
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // Le metemos los datos
+    unsigned int VBO1, VBO2; //Vertex Buffer
+    glGenBuffers(1, &VBO1); // Lo generamos
+    glBindBuffer(GL_ARRAY_BUFFER, VBO1); // Lo seleccionamos
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW); // Le metemos los datos
     // Vertex Shader Basico
     const char *vertexShaderSource = "# version 460 core\n"
 	"layout (location = 0) in vec3 aPos;\n"
@@ -37,28 +43,53 @@ int main() {
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
     // Fragment Shader Basico
-    const char *fragmentShaderSource = "# version 460 core\n"
+    const char *fragmentShaderSource1 = "# version 460 core\n"
 	    "out vec4 FragColor;\n"
 	    "void main()\n"
 	    "{\n"
 	    "FragColor = vec4(1.0f,0.5f,0.2f,1.0f);\n"
 	    "}\0";
-    unsigned int fragmentShader;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
+    const char *fragmentShaderSource2 = "# version 460 core\n"
+	    "out vec4 FragColor;\n"
+	    "void main()\n"
+	    "{\n"
+	    "FragColor = vec4(1.0f,1.0f,0.0f,1.0f);\n"
+	    "}\0";
+    unsigned int fragmentShader1, fragmentShader2;
+    fragmentShader1 = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader1, 1, &fragmentShaderSource1, NULL);
+    glCompileShader(fragmentShader1);
+    fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader2, 1, &fragmentShaderSource2, NULL);
+    glCompileShader(fragmentShader2);
 
     // Shader Program (Juntamos ambos shaders)
-    unsigned int shaderProgram;
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
+    unsigned int shaderProgram1, shaderProgram2;
+    shaderProgram1 = glCreateProgram();
+    glAttachShader(shaderProgram1, vertexShader);
+    glAttachShader(shaderProgram1, fragmentShader1);
+    glLinkProgram(shaderProgram1);
+
+    shaderProgram2 = glCreateProgram();
+    glAttachShader(shaderProgram2, vertexShader);
+    glAttachShader(shaderProgram2, fragmentShader2);
+    glLinkProgram(shaderProgram2);
 
     glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    glDeleteShader(fragmentShader1);
+    glDeleteShader(fragmentShader2);
 
     // Configuramos los vertex attributes
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    //Vertex Array Object 
+    glGenVertexArrays(1, &VAO2);
+    glBindVertexArray(VAO2);
+
+    glGenBuffers(1, &VBO2); // Lo generamos
+    glBindBuffer(GL_ARRAY_BUFFER, VBO2); // Lo seleccionamos
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW); // Le metemos los datos
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
@@ -66,8 +97,11 @@ int main() {
     while(!glfwWindowShouldClose(window)){
 	    glClearColor(0.2f, 0.3f, 0.3f, 0.1f);
 	    glClear( GL_COLOR_BUFFER_BIT );
-	    glUseProgram(shaderProgram);
-	    glBindVertexArray(VAO);
+	    glUseProgram(shaderProgram1);
+	    glBindVertexArray(VAO1);
+	    glDrawArrays(GL_TRIANGLES, 0, 3);
+	    glUseProgram(shaderProgram2);
+	    glBindVertexArray(VAO2);
 	    glDrawArrays(GL_TRIANGLES, 0, 3);
 	    glfwSwapBuffers(window);
 	    glfwPollEvents();
