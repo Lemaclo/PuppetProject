@@ -101,7 +101,14 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);
     */
+
+    // Z - Buffer, para que no se dibuje algo atras por delante.
     glEnable(GL_DEPTH_TEST);
+
+    // Matriz de proyeccion con perspectiva
+    glm:: mat4 projection;
+    projection = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 100.0f);
+    float offset = -3.0f;
 
     while(!glfwWindowShouldClose(window)){
 	    glClearColor(0.2f, 0.3f, 0.3f, 0.1f);
@@ -112,11 +119,24 @@ int main() {
 	    float greenVal = sin(timeValue) / 2.0f + 0.5f;
 	    greenTime.setFloat("ourColor", greenVal);
 	    */
+	    int state = glfwGetKey(window, GLFW_KEY_A);
+	    if(state == GLFW_PRESS){
+		    offset += 0.1f;
+	    }
+	    state = glfwGetKey(window, GLFW_KEY_D);
+	    if(state == GLFW_PRESS){
+		    offset -= 0.1f;
+	    }
+
+	    glm::mat4 view = glm::mat4(1.0f);
+	    view = glm::translate(view, glm::vec3(0.0f, 0.0f, offset));
 
 	    rot.use();
-	    glm::mat4 trans = glm::mat4(1.0f);
-	    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(1.0f, 0.5f, 1.0f));
-	    rot.setMat4("transform", trans);
+	    glm::mat4 model = glm::mat4(1.0f);
+	    model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.5f, 1.0f));
+	    rot.setMat4("model", model);
+	    rot.setMat4("view", view);
+	    rot.setMat4("projection", projection);
 
 	    glBindVertexArray(VAO1);
 	    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
