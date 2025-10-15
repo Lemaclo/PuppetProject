@@ -31,15 +31,15 @@ int main() {
     */
 
     float vertices[] = {
-	    // Position x y z	 
-	    -0.5f, -0.5f, -0.5f,
-	    -0.5f, -0.5f, 0.5f,
-	    -0.5f, 0.5f, -0.5f,
-	    -0.5f, 0.5f, 0.5f,
-	    0.5f, -0.5f, -0.5f,
-	    0.5f, -0.5f, 0.5f,
-	    0.5f, 0.5f, -0.5f,
-	    0.5f, 0.5f, 0.5f
+	    // Posicion x y z	 // Colores r g b
+	    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+	    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+	    -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+	    -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
+	    0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+	    0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f,
+	    0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
+	    0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f
     };
 
     unsigned int indices[]{
@@ -79,9 +79,13 @@ int main() {
     Shader rot("Shaders/rotation.vs", "Shaders/rotation.fs");
 
     // Configuramos los vertex attributes
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    // Posicion
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    
+    // Color
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
+    glEnableVertexAttribArray(1);
+
     //Vertex Array Object 
     /*
     glGenVertexArrays(1, &VAO2);
@@ -97,10 +101,11 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);
     */
+    glEnable(GL_DEPTH_TEST);
 
     while(!glfwWindowShouldClose(window)){
 	    glClearColor(0.2f, 0.3f, 0.3f, 0.1f);
-	    glClear(GL_COLOR_BUFFER_BIT);
+	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	    /*
 	    greenTime.use();
 	    float timeValue = glfwGetTime();
@@ -110,7 +115,7 @@ int main() {
 
 	    rot.use();
 	    glm::mat4 trans = glm::mat4(1.0f);
-	    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+	    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(1.0f, 0.5f, 1.0f));
 	    rot.setMat4("transform", trans);
 
 	    glBindVertexArray(VAO1);
