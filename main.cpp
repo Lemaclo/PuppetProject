@@ -3,6 +3,9 @@
 #include "include/glad/glad.h"
 #include "shaderClass.hpp"
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
 
@@ -12,6 +15,8 @@ int main() {
     glfwMakeContextCurrent(window);
     gladLoadGL();
     // Pasos de LearnOpenGl
+
+    /*
     float vertices1[] = {
 	    -0.5f, -0.5f, 0.0f,
 	     0.0f, -0.5f, 0.0f,
@@ -23,6 +28,34 @@ int main() {
 	     0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
 	     0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
     };
+    */
+
+    float vertices[] = {
+	    // Position x y z	 
+	    -0.5f, -0.5f, -0.5f,
+	    -0.5f, -0.5f, 0.5f,
+	    -0.5f, 0.5f, -0.5f,
+	    -0.5f, 0.5f, 0.5f,
+	    0.5f, -0.5f, -0.5f,
+	    0.5f, -0.5f, 0.5f,
+	    0.5f, 0.5f, -0.5f,
+	    0.5f, 0.5f, 0.5f
+    };
+
+    unsigned int indices[]{
+	    0, 1, 3, // L
+	    0, 2, 3,
+	    4, 5, 7, // R
+	    4, 6, 7,
+	    7, 3, 2, // U
+	    7, 6, 2,
+	    5, 1, 0, // D
+	    5, 4, 0,
+	    5, 1, 3, // F
+	    5, 7, 3,
+	    4, 0, 2, // B
+	    4, 6, 2
+    };
 
     //Vertex Array Object 
     unsigned int VAO1, VAO2;
@@ -32,83 +65,25 @@ int main() {
     unsigned int VBO1, VBO2; //Vertex Buffer
     glGenBuffers(1, &VBO1); // Lo generamos
     glBindBuffer(GL_ARRAY_BUFFER, VBO1); // Lo seleccionamos
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW); // Le metemos los datos
-    // Vertex Shader Basico
-    /*
-    const char *vertexShaderSource1 = "# version 460 core\n"
-	"layout (location = 0) in vec3 aPos;\n"
-	"void main()\n"
-	"{\n"
-		"gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-	"}\0";
-	*/
-    const char *vertexShaderSource2 = "# version 460 core\n"
-	"layout (location = 0) in vec3 aPos;\n"
-	"layout (location = 1) in vec3 aColor;\n"
-	"out vec3 myColor;\n"
-	"void main()\n"
-	"{\n"
-		"gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-		"myColor = aColor;\n"
-	"}\0";
-    unsigned int vertexShader1, vertexShader2;
-    /*
-    vertexShader1 = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader1, 1, &vertexShaderSource1, NULL);
-    glCompileShader(vertexShader1);
-    */
-    vertexShader2 = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader2, 1, &vertexShaderSource2, NULL);
-    glCompileShader(vertexShader2);
-    // Fragment Shader Basico
-    /*
-    const char *fragmentShaderSource1 = "# version 460 core\n"
-	    "out vec4 FragColor;\n"
-	    "uniform vec4 ourColor;\n"
-	    "void main()\n"
-	    "{\n"
-	    "FragColor = ourColor;\n"
-	    "}\0";
-    */
-    const char *fragmentShaderSource2 = "# version 460 core\n"
-	    "out vec4 FragColor;\n"
-	    "in vec3 myColor;\n"
-	    "void main()\n"
-	    "{\n"
-	    "FragColor = vec4(myColor, 1.0f);\n"
-	    "}\0";
-    unsigned int fragmentShader1, fragmentShader2;
-    //fragmentShader1 = glCreateShader(GL_FRAGMENT_SHADER);
-    //glShaderSource(fragmentShader1, 1, &fragmentShaderSource1, NULL);
-    glCompileShader(fragmentShader1);
-    fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader2, 1, &fragmentShaderSource2, NULL);
-    glCompileShader(fragmentShader2);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // Le metemos los datos
 
-    // Shader Program (Juntamos ambos shaders)
-    Shader greenTime("greenTime.vs", "greenTime.fs");
-    unsigned int shaderProgram1, shaderProgram2;
-    /*
-    shaderProgram1 = glCreateProgram();
-    glAttachShader(shaderProgram1, vertexShader1);
-    glAttachShader(shaderProgram1, fragmentShader1);
-    glLinkProgram(shaderProgram1);
-    */
-    shaderProgram2 = glCreateProgram();
-    glAttachShader(shaderProgram2, vertexShader2);
-    glAttachShader(shaderProgram2, fragmentShader2);
-    glLinkProgram(shaderProgram2);
+    // Element Array Buffer
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    //glDeleteShader(vertexShader1);
-    glDeleteShader(vertexShader2);
-    //glDeleteShader(fragmentShader1);
-    glDeleteShader(fragmentShader2);
+    // Shaders (La clase abstrae la parte de compilar, linkear, y juntar todo)
+    //Shader greenTime("Shaders/greenTime.vs", "Shaders/greenTime.fs");
+    //Shader color("Shaders/color.vs", "Shaders/color.fs");
+    Shader rot("Shaders/rotation.vs", "Shaders/rotation.fs");
 
     // Configuramos los vertex attributes
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     
     //Vertex Array Object 
+    /*
     glGenVertexArrays(1, &VAO2);
     glBindVertexArray(VAO2);
 
@@ -121,27 +96,36 @@ int main() {
     // Atributo de color
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);
-
+    */
 
     while(!glfwWindowShouldClose(window)){
 	    glClearColor(0.2f, 0.3f, 0.3f, 0.1f);
-	    glClear( GL_COLOR_BUFFER_BIT );
-	    //glUseProgram(shaderProgram1);
+	    glClear(GL_COLOR_BUFFER_BIT);
+	    /*
 	    greenTime.use();
 	    float timeValue = glfwGetTime();
 	    float greenVal = sin(timeValue) / 2.0f + 0.5f;
-	    /*
-	    int vertexColorLocation = glGetUniformLocation(shaderProgram1, "ourColor");
-	    glUniform4f(vertexColorLocation, 0.0f, greenVal, 0.0f, 1.0f);
-	    */
 	    greenTime.setFloat("ourColor", greenVal);
+	    */
+
+	    rot.use();
+	    glm::mat4 trans = glm::mat4(1.0f);
+	    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+	    rot.setMat4("transform", trans);
 
 	    glBindVertexArray(VAO1);
-	    glDrawArrays(GL_TRIANGLES, 0, 3);
+	    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	    glBindVertexArray(0);
 
-	    glUseProgram(shaderProgram2);
+	    /*
+	    color.use();
+	    float offset = sin(timeValue) / 3.0f;
+	    color.setFloat("offset", offset);
+
 	    glBindVertexArray(VAO2);
 	    glDrawArrays(GL_TRIANGLES, 0, 3);
+	    */
+
 	    glfwSwapBuffers(window);
 	    glfwPollEvents();
 

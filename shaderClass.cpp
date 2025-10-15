@@ -22,15 +22,18 @@ Shader::Shader(const char* vertexShaderFile, const char* fragmentShaderFile){
 	vertex = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex, 1,  &vShaderCode, NULL);
 	glCompileShader(vertex);
+	checkCompileErrors(vertex, "VERTEX");
 	// Fragment Shader
 	fragment = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragment, 1,  &fShaderCode, NULL);
 	glCompileShader(fragment);
+	checkCompileErrors(vertex, "FRAGMENT");
 	// Juntamos en el programa final
 	id = glCreateProgram();
 	glAttachShader(id, vertex);
 	glAttachShader(id, fragment);
 	glLinkProgram(id);
+	//checkCompileErrors(vertex, "PROGRAM");
 	// Borramos los shaders
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
@@ -52,4 +55,34 @@ void Shader::setInt(const string &name, int val){
 }
 void Shader::setFloat(const string &name, float val){
 	glUniform1f(glGetUniformLocation(id, name.c_str()), val);
+}
+void Shader::setMat4(const string &name, const glm::mat4 &val){
+	unsigned int transformLoc = glGetUniformLocation(id, name.c_str());
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &val[0][0]);
+}
+
+// Lo siento, es copia directa del LearnOpenGL. Necesito ver los errores.
+// utility function for checking shader compilation/linking errors.
+void Shader::checkCompileErrors(GLuint shader, string type)
+{
+	GLint success;
+	GLchar infoLog[1024];
+	if (type != "PROGRAM")
+	{
+	    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+	    if (!success)
+	    {
+		glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+		std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+	    }
+	}
+	else
+	{
+	    glGetProgramiv(shader, GL_LINK_STATUS, &success);
+	    if (!success)
+	    {
+		glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+		std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+	    }
+	}
 }

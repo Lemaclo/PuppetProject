@@ -8,6 +8,10 @@
 #include<sstream>
 #include<iostream>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 using namespace std;
 
 struct Shader{
@@ -21,6 +25,8 @@ struct Shader{
 	void setBool(const string &name, bool val);
 	void setInt(const string &name, int val);
 	void setFloat(const string &name, float val);
+	void setMat4(const string &name, const glm::mat4 &val);
+	void checkCompileErrors(GLuint shader, string type);
 };
 
 #endif
