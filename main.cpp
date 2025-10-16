@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include "include/glad/glad.h"
-#include "shaderClass.hpp"
+#include "include/shaderClass.hpp"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -108,28 +108,30 @@ int main() {
     // Matriz de proyeccion con perspectiva
     glm:: mat4 projection;
     projection = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 100.0f);
-    float offset = -3.0f;
+    float x_offset = 0.0f, y_offset = 0.0f, z_offset = -3.0f;
+    float x_ang = 0.0f, y_ang = 0.0f, z_ang = 0.0f;
+    int state_a, state_d, state_w, state_s, state_q, state_e;
 
     while(!glfwWindowShouldClose(window)){
 	    glClearColor(0.2f, 0.3f, 0.3f, 0.1f);
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	    /*
-	    greenTime.use();
-	    float timeValue = glfwGetTime();
-	    float greenVal = sin(timeValue) / 2.0f + 0.5f;
-	    greenTime.setFloat("ourColor", greenVal);
-	    */
-	    int state = glfwGetKey(window, GLFW_KEY_A);
-	    if(state == GLFW_PRESS){
-		    offset += 0.1f;
-	    }
-	    state = glfwGetKey(window, GLFW_KEY_D);
-	    if(state == GLFW_PRESS){
-		    offset -= 0.1f;
-	    }
+	    // Recibimos input del usuario
+	    state_a = glfwGetKey(window, GLFW_KEY_A);
+	    state_d = glfwGetKey(window, GLFW_KEY_D);
+	    state_w = glfwGetKey(window, GLFW_KEY_W);
+	    state_s = glfwGetKey(window, GLFW_KEY_S);
+	    state_q = glfwGetKey(window, GLFW_KEY_Q);
+	    state_e = glfwGetKey(window, GLFW_KEY_E);
+
+	    if(state_a == GLFW_PRESS) x_offset += 0.1f;
+	    if(state_d == GLFW_PRESS) x_offset -= 0.1f;
+	    if(state_q == GLFW_PRESS) y_offset += 0.1f;
+	    if(state_e == GLFW_PRESS) y_offset -= 0.1f;
+	    if(state_w == GLFW_PRESS) z_offset += 0.1f;
+	    if(state_s == GLFW_PRESS) z_offset -= 0.1f;
 
 	    glm::mat4 view = glm::mat4(1.0f);
-	    view = glm::translate(view, glm::vec3(0.0f, 0.0f, offset));
+	    view = glm::translate(view, glm::vec3(x_offset, y_offset, z_offset));
 
 	    rot.use();
 	    glm::mat4 model = glm::mat4(1.0f);

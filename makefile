@@ -1,2 +1,2 @@
 main : main.cpp
-	g++ shaderClass.cpp main.cpp glad.c -Llib -lglad -lglfw
+	g++ main.cpp glad.c include/shaderClass.cpp -Llib -lglad -lglfw
