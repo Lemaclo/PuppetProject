@@ -12,13 +12,17 @@ using namespace std;
 
 struct Cube{
 	unsigned int VAO, VBO, EBO;
-	float ang, sx, sy, sz;
-	glm::vec3 mov, axis;
-	glm::mat4 trans;
-	Cube(float _sx, float _sy, float _sz);
+	glm::vec3 ang; // Angulos de Euler
+	glm::vec3 s; // Escala de la primitiva
+	glm::vec3 c; // Punto de "union" en articulacion. (en -0.5, 0.5)
+	glm::vec3 pos; // Posicion del punto union
+	glm::mat4 trans; // Matriz de transformacion local
+	Cube(glm::vec3 _s, glm::vec3 _c);
 	void draw(Shader &sh);
+	void set_pos(glm::vec3 t);
 	void translate(glm::vec3 t);
-	void rotate(float _ang, glm::vec3 t);
+	void set_angles(glm::vec3 t);
+	void rotate(glm::vec3 t);
 };
 
 #endif

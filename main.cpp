@@ -12,113 +12,27 @@
 using namespace std;
 
 int main() {
+    // Inicializamos la ventana.
     glfwInit();
     GLFWwindow* window = glfwCreateWindow(800, 600, "PUPPET", NULL, NULL);
     glfwMakeContextCurrent(window);
     gladLoadGL();
-    // Pasos de LearnOpenGl
 
-    /*
-    float vertices1[] = {
-	    -0.5f, -0.5f, 0.0f,
-	     0.0f, -0.5f, 0.0f,
-	     -0.5f,  0.5f, 0.0f
-    };
-
-    float vertices2[] = {
-	    0.0f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-	     0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-	     0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
-    };
-    */
-
-    /*
-    float vertices[] = {
-	    // Posicion x y z	 // Colores r g b
-	    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-	    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-	    -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-	    -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
-	    0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-	    0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f,
-	    0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
-	    0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f
-    };
-
-    unsigned int indices[]{
-	    0, 1, 3, // L
-	    0, 2, 3,
-	    4, 5, 7, // R
-	    4, 6, 7,
-	    7, 3, 2, // U
-	    7, 6, 2,
-	    5, 1, 0, // D
-	    5, 4, 0,
-	    5, 1, 3, // F
-	    5, 7, 3,
-	    4, 0, 2, // B
-	    4, 6, 2
-    };
-
-    //Vertex Array Object 
-    unsigned int VAO1, VAO2;
-    glGenVertexArrays(1, &VAO1);
-    glBindVertexArray(VAO1);
-
-    unsigned int VBO1, VBO2; //Vertex Buffer
-    glGenBuffers(1, &VBO1); // Lo generamos
-    glBindBuffer(GL_ARRAY_BUFFER, VBO1); // Lo seleccionamos
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // Le metemos los datos
-
-    // Element Array Buffer
-    unsigned int EBO;
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    */
-
-    // Creamos las primitivas 
-
-    Cube head(1.0f, 1.0f, 1.0f); // Cabeza
-    Cube torso(3.0f, 5.0f, 2.0f); // Torso
-    Cube left_arm(5.0f, 0.5f, 0.5f); // Brazo izquierdo
-    Cube right_arm(5.0f, 0.5f, 0.5f); // Brazo derecho
-    Cube left_leg(0.5f, 6.5f, 0.7f); // Pierna izquierda
-    Cube right_leg(0.5f, 6.5f, 0.7f); // Pierna derecha
-    torso.translate(glm::vec3(0.0f,-3.0f,0.0f));
-    left_arm.translate(glm::vec3(-2.6f,-1.5f,0.0f));
-    right_arm.translate(glm::vec3(2.6f,-1.5f,0.0f));
-    left_leg.translate(glm::vec3(-1.0f,-7.3f,0.0f));
-    right_leg.translate(glm::vec3(1.0f,-7.3f,0.0f));
-
-    // Shaders (La clase abstrae la parte de compilar, linkear, y juntar todo)
-    //Shader greenTime("Shaders/greenTime.vs", "Shaders/greenTime.fs");
-    //Shader color("Shaders/color.vs", "Shaders/color.fs");
+    // Cargamos y compilamos los shaders
     Shader rot("Shaders/rotation.vs", "Shaders/rotation.fs");
-
-    // Configuramos los vertex attributes
-    // Posicion
-    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    //glEnableVertexAttribArray(0);
-    // Color
-    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
-    //glEnableVertexAttribArray(1);
-
-    //Vertex Array Object 
-    /*
-    glGenVertexArrays(1, &VAO2);
-    glBindVertexArray(VAO2);
-
-    glGenBuffers(1, &VBO2); // Lo generamos
-    glBindBuffer(GL_ARRAY_BUFFER, VBO2); // Lo seleccionamos
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW); // Le metemos los datos
-    // Atributo de pos
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // Atributo de color
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
-    glEnableVertexAttribArray(1);
-    */
+    // Creamos las primitivas 
+    Cube head(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, -0.5f, 0.0f)); // Cabeza
+    Cube torso(glm::vec3(3.0f, 5.0f, 2.0f), glm::vec3(0.0f,0.0f,0.0f)); // Torso
+    Cube left_arm(glm::vec3(3.0f, 0.5f, 0.5f), glm::vec3(0.5f,0.0f,0.0f)); // Brazo izquierdo
+    Cube right_arm(glm::vec3(3.0f, 0.5f, 0.5f), glm::vec3(-0.5f,0.0f,0.0f)); // Brazo derecho
+    Cube left_leg(glm::vec3(0.5f, 6.5f, 0.7f), glm::vec3(0.0f,0.5f,0.0f)); // Pierna izquierda
+    Cube right_leg(glm::vec3(0.5f, 6.5f, 0.7f), glm::vec3(0.0f,0.5f,0.0f)); // Pierna derecha
+    // Posiciones iniciales
+    head.set_pos(glm::vec3(0.0f, 2.6f, 0.0f));
+    left_arm.set_pos(glm::vec3(-1.6f, 1.5f, 0.0f));
+    right_arm.set_pos(glm::vec3(1.6f, 1.5f, 0.0f));
+    left_leg.set_pos(glm::vec3(-1.0f, -2.6f, 0.0f));
+    right_leg.set_pos(glm::vec3(1.0f, -2.6f, 0.0f));
 
     // Z - Buffer, para que no se dibuje algo atras por delante.
     glEnable(GL_DEPTH_TEST);
@@ -126,15 +40,14 @@ int main() {
     // Matriz de proyeccion con perspectiva
     glm:: mat4 projection;
     projection = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 100.0f);
-    float x_offset = 0.0f, y_offset = 0.0f, z_offset = -5.0f;
+    float x_offset = 0.0f, y_offset = 0.0f, z_offset = -10.0f;
     float x_ang = 0.0f, y_ang = 0.0f, z_ang = 0.0f;
-    int state_a, state_d, state_w, state_s, state_q, state_e,
-	state_n, state_i, state_p;
-
-    float piece_ang = 0.1f;
+    int state_a, state_d, state_w, state_s, state_q, 
+	state_e, state_n, state_i, state_p, state_j, state_l,
+	state_o, state_k, state_r;
     int cur_piece = 0;
-    Cube* control[] = {&left_arm, &right_arm, &left_leg, &right_leg};
     bool chang = true;
+    vector<Cube *> puppet = {&torso, &head, &left_arm, &right_arm, &left_leg, &right_leg};
 
     while(!glfwWindowShouldClose(window)){
 	    glClearColor(0.2f, 0.3f, 0.3f, 0.1f);
@@ -149,6 +62,11 @@ int main() {
 	    state_n = glfwGetKey(window, GLFW_KEY_N);
 	    state_i = glfwGetKey(window, GLFW_KEY_I);
 	    state_p = glfwGetKey(window, GLFW_KEY_P);
+	    state_j = glfwGetKey(window, GLFW_KEY_J);
+	    state_l = glfwGetKey(window, GLFW_KEY_L);
+	    state_o = glfwGetKey(window, GLFW_KEY_O);
+	    state_k = glfwGetKey(window, GLFW_KEY_K);
+	    state_r = glfwGetKey(window, GLFW_KEY_R);
 
 	    if(state_a == GLFW_PRESS) x_offset += 0.1f;
 	    if(state_d == GLFW_PRESS) x_offset -= 0.1f;
@@ -156,60 +74,43 @@ int main() {
 	    if(state_e == GLFW_PRESS) y_offset -= 0.1f;
 	    if(state_w == GLFW_PRESS) z_offset += 0.1f;
 	    if(state_s == GLFW_PRESS) z_offset -= 0.1f;
-	    if(state_n == GLFW_PRESS && chang){
-		    piece_ang = 0.0f;
+	    if(state_n == GLFW_PRESS && chang) {
 		    cur_piece++;
-		    cur_piece %= 4;
+		    cur_piece %= puppet.size();
+		    x_ang = puppet[cur_piece]->ang.x;
+		    y_ang = puppet[cur_piece]->ang.y;
+		    z_ang = puppet[cur_piece]->ang.z;
 		    chang = false;
 	    }
-	    if(state_i == GLFW_PRESS){
-		    piece_ang += 0.1f;
-		    chang = true;
-	    }
-	    if(state_p == GLFW_PRESS){
-		    piece_ang -= 0.1f;
-		    chang = true;
-	    }
+	    if(state_n == GLFW_RELEASE) chang = true;
+
+	    if(state_i == GLFW_PRESS) x_ang += 0.1f;
+	    if(state_p == GLFW_PRESS) x_ang -= 0.1f;
+	    if(state_j == GLFW_PRESS) y_ang += 0.1f;
+	    if(state_l == GLFW_PRESS) y_ang -= 0.1f;
+	    if(state_o == GLFW_PRESS) z_ang += 0.1f;
+	    if(state_k == GLFW_PRESS) z_ang -= 0.1f;
+	    if(state_r == GLFW_PRESS) x_ang = y_ang = z_ang = 0.0f;
 
 	    glm::mat4 view = glm::mat4(1.0f);
-	    view = glm::translate(view, glm::vec3(0.0f, 3.0f, z_offset));
+	    view = glm::translate(view, glm::vec3(0.0f, 2.0f, z_offset));
 
 	    rot.use();
-
-	    if(cur_piece < 2){
-		    (*control[cur_piece]).rotate(piece_ang, glm::vec3(0.0f, 1.0f, 0.0f));
-	    } else {
-		    (*control[cur_piece]).rotate(piece_ang, glm::vec3(1.0f, 0.0f, 0.0f));
+	    for(int i=0;i<puppet.size();i++){
+		    if(i == cur_piece){
+			    rot.setBool("select", true);
+			    puppet[i]->set_angles(glm::vec3(x_ang, y_ang, z_ang));
+		    } else {
+			    rot.setBool("select", false);
+		    }
+		    puppet[i]->draw(rot);
 	    }
 
-
-	    head.draw(rot);
-	    torso.draw(rot);
-	    left_arm.draw(rot);
-	    right_arm.draw(rot);
-	    left_leg.draw(rot);
-	    right_leg.draw(rot);
-
-	    glm::mat4 model = glm::mat4(1.0f);
 	    view = glm::rotate(view, y_offset, glm::vec3(0.0f, 1.0f, 0.0f));
 	    view = glm::rotate(view, x_offset, glm::vec3(1.0f, 0.0f, 0.0f));
 
-	    rot.setMat4("model", model);
 	    rot.setMat4("view", view);
 	    rot.setMat4("projection", projection);
-
-	    /*
-	    glBindVertexArray(VAO1);
-	    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-	    glBindVertexArray(0);
-
-	    color.use();
-	    float offset = sin(timeValue) / 3.0f;
-	    color.setFloat("offset", offset);
-
-	    glBindVertexArray(VAO2);
-	    glDrawArrays(GL_TRIANGLES, 0, 3);
-	    */
 
 	    glfwSwapBuffers(window);
 	    glfwPollEvents();

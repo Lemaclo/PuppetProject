@@ -8,8 +8,13 @@ out vec3 myColor;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform bool select;
 
 void main(){
 	gl_Position = projection * view * model * vec4(aPos, 1.0f);
-	myColor = aCol;
+	if(select){
+		myColor = aCol;
+	} else {
+		myColor = vec3(0.5f,0.5f,0.5f) * aCol;
+	}
 }

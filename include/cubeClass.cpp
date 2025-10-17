@@ -27,11 +27,13 @@ unsigned int indices[]{
 	4, 6, 2
 };
 
-Cube::Cube(float _sx, float _sy, float _sz){
-	ang = 0.0f;
-	axis = glm::vec3(1.0f,0.0f,0.0f);
-	mov = glm::vec3(0.0f,0.0f,0.0f);
-	sx = _sx; sy = _sy; sz = _sz;
+Cube::Cube(glm::vec3 _s, glm::vec3 _c){
+	s = _s;
+	c = _c * s;
+	ang = glm::vec3(0.0f, 0.0f, 0.0f);
+	pos = glm::vec3(0.0f, 0.0f, 0.0f);
+	trans = glm::mat4(1.0f);
+
 	// Vertex Array
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -58,22 +60,30 @@ Cube::Cube(float _sx, float _sy, float _sz){
 void Cube::draw(Shader &sh){
 	// Inicializamos la matriz de transformacion local.
 	trans = glm::mat4(1.0f);
-	trans = glm::rotate(trans, ang, axis);
-	trans = glm::translate(trans, mov);
-	trans = glm::scale(trans, glm::vec3(sx, sy, sz));
+	trans = glm::translate(trans, pos);
+	// trans = glm::translate(trans, c); // Deshacemos
+	// Rotamos
+	trans = glm::rotate(trans, ang.x, glm::vec3(1.0f,0.0f,0.0f));
+	trans = glm::rotate(trans, ang.y, glm::vec3(0.0f,1.0f,0.0f));
+	trans = glm::rotate(trans, ang.z, glm::vec3(0.0f,0.0f,1.0f));
+	trans = glm::translate(trans, -1.0f * c); // Movemos poco
+	trans = glm::scale(trans, s); // Escalamos
 	sh.setMat4("model", trans);
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
-void Cube::translate(glm::vec3 t){
-	mov = t;
-	//trans = glm::translate(trans, t);
+void Cube::set_pos(glm::vec3 t){
+	pos = t;
 }
 
-void Cube::rotate(float _ang, glm::vec3 t){
-	ang = _ang;
-	axis = t;
-	//trans = glm::rotate(trans, ang, t);
+void Cube::translate(glm::vec3 t){
+	pos += t;
+}
+void Cube::set_angles(glm::vec3 t){
+	ang = t;
+}
+void Cube::rotate(glm::vec3 t){
+	ang += t;
 }
