@@ -32,7 +32,7 @@ Cube::Cube(glm::vec3 _s, glm::vec3 _c){
 	c = _c * s;
 	ang = glm::vec3(0.0f, 0.0f, 0.0f);
 	pos = glm::vec3(0.0f, 0.0f, 0.0f);
-	trans = glm::mat4(1.0f);
+	base = glm::mat4(1.0f);
 
 	// Vertex Array
 	glGenVertexArrays(1, &VAO);
@@ -59,12 +59,12 @@ Cube::Cube(glm::vec3 _s, glm::vec3 _c){
 
 void Cube::draw(Shader &sh){
 	// Inicializamos la matriz de transformacion local.
-	trans = glm::mat4(1.0f);
+	trans = base;
 	trans = glm::translate(trans, pos);
 	// trans = glm::translate(trans, c); // Deshacemos
 	// Rotamos
-	trans = glm::rotate(trans, ang.x, glm::vec3(1.0f,0.0f,0.0f));
-	trans = glm::rotate(trans, ang.y, glm::vec3(0.0f,1.0f,0.0f));
+	trans = glm::rotate(trans, ang.x, glm::vec3(0.0f,0.0f,1.0f));
+	trans = glm::rotate(trans, ang.y, glm::vec3(1.0f,0.0f,0.0f));
 	trans = glm::rotate(trans, ang.z, glm::vec3(0.0f,0.0f,1.0f));
 	trans = glm::translate(trans, -1.0f * c); // Movemos poco
 	trans = glm::scale(trans, s); // Escalamos

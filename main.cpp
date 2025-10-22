@@ -11,12 +11,113 @@
 
 using namespace std;
 
+
+// Configuracion de camara
+glm::vec3 camara_pos, camara_pos_delta;
+glm::vec3 camara_ang, camara_ang_delta;
+
+// Configuracion de pieza
+glm::vec3 piece_pos, piece_pos_delta;
+glm::vec3 piece_ang, piece_ang_delta;
+
+// Selector de piezas
+int cur_piece;
+vector<Cube *> puppet; 
+
+void init(){
+	camara_pos = glm::vec3(0.0f, 2.0f, -15.0f);
+	camara_ang = glm::vec3(0.0f, 0.0f, 0.0f);
+	camara_pos_delta = glm::vec3(0.0f, 0.0f, 0.0f);
+	camara_ang_delta = glm::vec3(0.0f, 0.0f, 0.0f);
+	piece_ang = glm::vec3(0.0f, 0.0f, 0.0f);
+	piece_ang_delta = glm::vec3(0.0f, 0.0f, 0.0f);
+}
+
+
+void handle_input(GLFWwindow *window, int key, int scancode, int action, int mods){
+	float d = 0.0f;
+	if(action == GLFW_PRESS) d = 0.1f;
+	if(action == GLFW_RELEASE) d = -0.1f;
+	switch(key){
+		case GLFW_KEY_LEFT:
+			camara_pos_delta.x += d;
+			break;
+		case GLFW_KEY_RIGHT:
+			camara_pos_delta.x -= d;
+			break;
+		case GLFW_KEY_DOWN:
+			camara_pos_delta.y += d;
+			break;
+		case GLFW_KEY_UP:
+			camara_pos_delta.y -= d;
+			break;
+		case GLFW_KEY_W:
+			camara_pos_delta.z += d;
+			break;
+		case GLFW_KEY_S:
+			camara_pos_delta.z -= d;
+			break;
+		case GLFW_KEY_Q:
+			camara_ang_delta.x += d / glm::length(camara_pos);
+			break;
+		case GLFW_KEY_E:
+			camara_ang_delta.x -= d / glm::length(camara_pos);
+			break;
+		case GLFW_KEY_A:
+			camara_ang_delta.y += d / glm::length(camara_pos);
+			break;
+		case GLFW_KEY_D:
+			camara_ang_delta.y -= d / glm::length(camara_pos);
+			break;
+		case GLFW_KEY_Z:
+			camara_ang_delta.z += d / glm::length(camara_pos);
+			break;
+		case GLFW_KEY_C:
+			camara_ang_delta.z -= d / glm::length(camara_pos);
+			break;
+		case GLFW_KEY_N:
+			if(action == GLFW_PRESS){
+			    cur_piece++;
+			    cur_piece %= puppet.size();
+			    piece_ang = puppet[cur_piece]->ang;
+			}
+			break;
+		case GLFW_KEY_R:
+			piece_ang = glm::vec3(0.0f, 0.0f, 0.0f);
+			break;
+		case GLFW_KEY_X:
+			camara_pos = glm::vec3(0.0f, 2.0f, -15.0f);
+			camara_ang = glm::vec3(0.0f, 0.0f, 0.0f);
+			break;
+
+		case GLFW_KEY_I:
+			piece_ang_delta.x += d;
+			break;
+		case GLFW_KEY_P:
+			piece_ang_delta.x -= d;
+			break;
+		case GLFW_KEY_J:
+			piece_ang_delta.y += d;
+			break;
+		case GLFW_KEY_L:
+			piece_ang_delta.y -= d;
+			break;
+		case GLFW_KEY_O:
+			piece_ang_delta.z += d;
+			break;
+		case GLFW_KEY_K:
+			piece_ang_delta.z -= d;
+			break;
+	}
+}
+
 int main() {
     // Inicializamos la ventana.
     glfwInit();
     GLFWwindow* window = glfwCreateWindow(800, 600, "PUPPET", NULL, NULL);
     glfwMakeContextCurrent(window);
     gladLoadGL();
+
 
     // Cargamos y compilamos los shaders
     Shader rot("Shaders/rotation.vs", "Shaders/rotation.fs");
@@ -40,74 +141,48 @@ int main() {
     // Matriz de proyeccion con perspectiva
     glm:: mat4 projection;
     projection = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 100.0f);
-    float x_offset = 0.0f, y_offset = 0.0f, z_offset = -10.0f;
+    float x_offset = 0.0f, y_offset = 0.0f, z_offset= 0.0f;
     float x_ang = 0.0f, y_ang = 0.0f, z_ang = 0.0f;
-    int state_a, state_d, state_w, state_s, state_q, 
-	state_e, state_n, state_i, state_p, state_j, state_l,
-	state_o, state_k, state_r;
-    int cur_piece = 0;
-    bool chang = true;
-    vector<Cube *> puppet = {&torso, &head, &left_arm, &right_arm, &left_leg, &right_leg};
+
+    cur_piece = 0;
+    puppet = {&torso, &head, &left_arm, &right_arm, &left_leg, &right_leg};
+
+    // Inicializamos la camara, y las posiciones.
+    init();
+    // Configuramos la funcion de input
+    glfwSetKeyCallback(window, handle_input);
 
     while(!glfwWindowShouldClose(window)){
 	    glClearColor(0.2f, 0.3f, 0.3f, 0.1f);
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	    // Recibimos input del usuario
-	    state_a = glfwGetKey(window, GLFW_KEY_A);
-	    state_d = glfwGetKey(window, GLFW_KEY_D);
-	    state_w = glfwGetKey(window, GLFW_KEY_W);
-	    state_s = glfwGetKey(window, GLFW_KEY_S);
-	    state_q = glfwGetKey(window, GLFW_KEY_Q);
-	    state_e = glfwGetKey(window, GLFW_KEY_E);
-	    state_n = glfwGetKey(window, GLFW_KEY_N);
-	    state_i = glfwGetKey(window, GLFW_KEY_I);
-	    state_p = glfwGetKey(window, GLFW_KEY_P);
-	    state_j = glfwGetKey(window, GLFW_KEY_J);
-	    state_l = glfwGetKey(window, GLFW_KEY_L);
-	    state_o = glfwGetKey(window, GLFW_KEY_O);
-	    state_k = glfwGetKey(window, GLFW_KEY_K);
-	    state_r = glfwGetKey(window, GLFW_KEY_R);
 
-	    if(state_a == GLFW_PRESS) x_offset += 0.1f;
-	    if(state_d == GLFW_PRESS) x_offset -= 0.1f;
-	    if(state_q == GLFW_PRESS) y_offset += 0.1f;
-	    if(state_e == GLFW_PRESS) y_offset -= 0.1f;
-	    if(state_w == GLFW_PRESS) z_offset += 0.1f;
-	    if(state_s == GLFW_PRESS) z_offset -= 0.1f;
-	    if(state_n == GLFW_PRESS && chang) {
-		    cur_piece++;
-		    cur_piece %= puppet.size();
-		    x_ang = puppet[cur_piece]->ang.x;
-		    y_ang = puppet[cur_piece]->ang.y;
-		    z_ang = puppet[cur_piece]->ang.z;
-		    chang = false;
-	    }
-	    if(state_n == GLFW_RELEASE) chang = true;
+	    camara_pos += camara_pos_delta;
+	    camara_ang += camara_ang_delta;
 
-	    if(state_i == GLFW_PRESS) x_ang += 0.1f;
-	    if(state_p == GLFW_PRESS) x_ang -= 0.1f;
-	    if(state_j == GLFW_PRESS) y_ang += 0.1f;
-	    if(state_l == GLFW_PRESS) y_ang -= 0.1f;
-	    if(state_o == GLFW_PRESS) z_ang += 0.1f;
-	    if(state_k == GLFW_PRESS) z_ang -= 0.1f;
-	    if(state_r == GLFW_PRESS) x_ang = y_ang = z_ang = 0.0f;
+	    piece_ang += piece_ang_delta;
 
 	    glm::mat4 view = glm::mat4(1.0f);
-	    view = glm::translate(view, glm::vec3(0.0f, 2.0f, z_offset));
+	    view = glm::rotate(view, camara_ang.x, glm::vec3(1.0f, 0.0f, 0.0f));
+	    view = glm::rotate(view, camara_ang.y, glm::vec3(0.0f, 1.0f, 0.0f));
+	    view = glm::rotate(view, camara_ang.z, glm::vec3(0.0f, 0.0f, 1.0f));
+	    view = glm::translate(view, camara_pos);
 
 	    rot.use();
 	    for(int i=0;i<puppet.size();i++){
 		    if(i == cur_piece){
 			    rot.setBool("select", true);
-			    puppet[i]->set_angles(glm::vec3(x_ang, y_ang, z_ang));
+			    puppet[i]->set_angles(piece_ang);
 		    } else {
 			    rot.setBool("select", false);
+		    }
+		    if(i != 0){
+			    puppet[i]->base = puppet[0]->trans * glm::scale(glm::mat4(1.0f), 
+					    glm::vec3(1.0f/(puppet[0]->s.x), 1.0f/(puppet[0]->s.y), 
+						    1.0f/(puppet[0]->s.z)));
 		    }
 		    puppet[i]->draw(rot);
 	    }
 
-	    view = glm::rotate(view, y_offset, glm::vec3(0.0f, 1.0f, 0.0f));
-	    view = glm::rotate(view, x_offset, glm::vec3(1.0f, 0.0f, 0.0f));
 
 	    rot.setMat4("view", view);
 	    rot.setMat4("projection", projection);
