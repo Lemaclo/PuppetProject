@@ -4,6 +4,7 @@
 #include "include/glad/glad.h"
 #include "include/shaderClass.hpp"
 #include "include/cubeClass.hpp"
+#include "include/jointClass.hpp"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -22,7 +23,7 @@ glm::vec3 piece_ang, piece_ang_delta;
 
 // Selector de piezas
 int cur_piece;
-vector<Cube *> puppet; 
+vector<Joint *> puppet; 
 
 void init(){
 	camara_pos = glm::vec3(0.0f, 2.0f, -15.0f);
@@ -77,9 +78,10 @@ void handle_input(GLFWwindow *window, int key, int scancode, int action, int mod
 			break;
 		case GLFW_KEY_N:
 			if(action == GLFW_PRESS){
+			    puppet[cur_piece]->selected = false;
 			    cur_piece++;
 			    cur_piece %= puppet.size();
-			    piece_ang = puppet[cur_piece]->ang;
+			    piece_ang = puppet[cur_piece]->piece.ang;
 			}
 			break;
 		case GLFW_KEY_R:
@@ -88,6 +90,8 @@ void handle_input(GLFWwindow *window, int key, int scancode, int action, int mod
 		case GLFW_KEY_X:
 			camara_pos = glm::vec3(0.0f, 2.0f, -15.0f);
 			camara_ang = glm::vec3(0.0f, 0.0f, 0.0f);
+			camara_pos_delta = glm::vec3(0.0f, 0.0f, 0.0f);
+			camara_ang_delta = glm::vec3(0.0f, 0.0f, 0.0f);
 			break;
 
 		case GLFW_KEY_I:
@@ -122,18 +126,21 @@ int main() {
     // Cargamos y compilamos los shaders
     Shader rot("Shaders/rotation.vs", "Shaders/rotation.fs");
     // Creamos las primitivas 
-    Cube head(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, -0.5f, 0.0f)); // Cabeza
-    Cube torso(glm::vec3(3.0f, 5.0f, 2.0f), glm::vec3(0.0f,0.0f,0.0f)); // Torso
-    Cube left_arm(glm::vec3(3.0f, 0.5f, 0.5f), glm::vec3(0.5f,0.0f,0.0f)); // Brazo izquierdo
-    Cube right_arm(glm::vec3(3.0f, 0.5f, 0.5f), glm::vec3(-0.5f,0.0f,0.0f)); // Brazo derecho
-    Cube left_leg(glm::vec3(0.5f, 6.5f, 0.7f), glm::vec3(0.0f,0.5f,0.0f)); // Pierna izquierda
-    Cube right_leg(glm::vec3(0.5f, 6.5f, 0.7f), glm::vec3(0.0f,0.5f,0.0f)); // Pierna derecha
-    // Posiciones iniciales
-    head.set_pos(glm::vec3(0.0f, 2.6f, 0.0f));
-    left_arm.set_pos(glm::vec3(-1.6f, 1.5f, 0.0f));
-    right_arm.set_pos(glm::vec3(1.6f, 1.5f, 0.0f));
-    left_leg.set_pos(glm::vec3(-1.0f, -2.6f, 0.0f));
-    right_leg.set_pos(glm::vec3(1.0f, -2.6f, 0.0f));
+    Joint head(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, -0.5f, 0.0f), glm::vec3(0.0f, 2.6f, 0.0f)); // Cabeza
+    Joint torso(glm::vec3(3.0f, 5.0f, 2.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,0.0f)); // Torso
+    Joint left_arm(glm::vec3(3.0f, 0.5f, 0.5f), glm::vec3(0.5f,0.0f,0.0f), glm::vec3(-1.6f, 1.5f, 0.0f));
+    Joint right_arm(glm::vec3(3.0f, 0.5f, 0.5f), glm::vec3(-0.5f,0.0f,0.0f), glm::vec3(1.6f, 1.5f, 0.0f));
+    Joint left_leg(glm::vec3(0.5f, 6.5f, 0.7f), glm::vec3(0.0f,0.5f,0.0f), glm::vec3(-1.0f, -2.6f, 0.0f)); 
+    Joint right_leg(glm::vec3(0.5f, 6.5f, 0.7f), glm::vec3(0.0f,0.5f,0.0f), glm::vec3(1.0f, -2.6f, 0.0f)); 
+    Joint tail(glm::vec3(3.0f, 0.5f, 0.5f), glm::vec3(-0.5f,0.0f,0.0f), glm::vec3(1.5f, 0.0f, 0.0f));
+    Joint tail2(glm::vec3(3.0f, 0.5f, 0.5f), glm::vec3(-0.5f,0.0f,0.0f), glm::vec3(1.5f, 0.0f, 0.0f));
+    torso.add_children(&head);
+    torso.add_children(&left_arm);
+    torso.add_children(&right_arm);
+    torso.add_children(&left_leg);
+    torso.add_children(&right_leg);
+    right_arm.add_children(&tail);
+    tail.add_children(&tail2);
 
     // Z - Buffer, para que no se dibuje algo atras por delante.
     glEnable(GL_DEPTH_TEST);
@@ -141,11 +148,9 @@ int main() {
     // Matriz de proyeccion con perspectiva
     glm:: mat4 projection;
     projection = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 100.0f);
-    float x_offset = 0.0f, y_offset = 0.0f, z_offset= 0.0f;
-    float x_ang = 0.0f, y_ang = 0.0f, z_ang = 0.0f;
 
     cur_piece = 0;
-    puppet = {&torso, &head, &left_arm, &right_arm, &left_leg, &right_leg};
+    puppet = {&torso, &head, &left_arm, &right_arm, &left_leg, &right_leg, &tail, &tail2};
 
     // Inicializamos la camara, y las posiciones.
     init();
@@ -168,6 +173,14 @@ int main() {
 	    view = glm::translate(view, camara_pos);
 
 	    rot.use();
+
+	    rot.setMat4("view", view);
+	    rot.setMat4("projection", projection);
+
+	    puppet[cur_piece]->piece.set_angles(piece_ang);
+	    puppet[cur_piece]->selected = true;
+	    puppet[0]->draw(glm::mat4(1.0f), rot);
+	    /*
 	    for(int i=0;i<puppet.size();i++){
 		    if(i == cur_piece){
 			    rot.setBool("select", true);
@@ -182,10 +195,7 @@ int main() {
 		    }
 		    puppet[i]->draw(rot);
 	    }
-
-
-	    rot.setMat4("view", view);
-	    rot.setMat4("projection", projection);
+	    */
 
 	    glfwSwapBuffers(window);
 	    glfwPollEvents();

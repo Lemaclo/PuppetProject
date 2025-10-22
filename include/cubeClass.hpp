@@ -17,6 +17,7 @@ struct Cube{
 	glm::vec3 c; // Punto de "union" en articulacion. (en -0.5, 0.5)
 	glm::vec3 pos; // Posicion del punto union
 	glm::mat4 trans, base; // Matriz de transformacion local
+	Cube();
 	Cube(glm::vec3 _s, glm::vec3 _c);
 	void draw(Shader &sh);
 	void set_pos(glm::vec3 t);

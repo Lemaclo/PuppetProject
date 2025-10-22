@@ -27,6 +27,9 @@ unsigned int indices[]{
 	4, 6, 2
 };
 
+
+Cube::Cube() : Cube(glm::vec3(1.0f,1.0f,1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) {}
+
 Cube::Cube(glm::vec3 _s, glm::vec3 _c){
 	s = _s;
 	c = _c * s;
@@ -63,8 +66,8 @@ void Cube::draw(Shader &sh){
 	trans = glm::translate(trans, pos);
 	// trans = glm::translate(trans, c); // Deshacemos
 	// Rotamos
-	trans = glm::rotate(trans, ang.x, glm::vec3(0.0f,0.0f,1.0f));
-	trans = glm::rotate(trans, ang.y, glm::vec3(1.0f,0.0f,0.0f));
+	trans = glm::rotate(trans, ang.x, glm::vec3(1.0f,0.0f,0.0f));
+	trans = glm::rotate(trans, ang.y, glm::vec3(0.0f,1.0f,0.0f));
 	trans = glm::rotate(trans, ang.z, glm::vec3(0.0f,0.0f,1.0f));
 	trans = glm::translate(trans, -1.0f * c); // Movemos poco
 	trans = glm::scale(trans, s); // Escalamos
@@ -87,3 +90,4 @@ void Cube::set_angles(glm::vec3 t){
 void Cube::rotate(glm::vec3 t){
 	ang += t;
 }
+
