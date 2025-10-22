@@ -32,6 +32,18 @@ void init(){
 	camara_ang_delta = glm::vec3(0.0f, 0.0f, 0.0f);
 	piece_ang = glm::vec3(0.0f, 0.0f, 0.0f);
 	piece_ang_delta = glm::vec3(0.0f, 0.0f, 0.0f);
+	int n; cin  >> n;
+	for(int i=0;i<n;i++){
+		float sx,sy,sz; cin >> sx >> sy >> sz;
+		float cx,cy,cz; cin >> cx >> cy >> cz;
+		float px,py,pz; cin >> px >> py >> pz;
+		puppet.push_back(new Joint(glm::vec3(sx,sy,sz), glm::vec3(cx,cy,cz), glm::vec3(px,py,pz)));
+	}
+	for(int i=1;i<n;i++){
+		int u, v; cin >> u >> v;
+		u--; v--;
+		puppet[u]->add_children(puppet[v]);
+	}
 }
 
 
@@ -41,16 +53,16 @@ void handle_input(GLFWwindow *window, int key, int scancode, int action, int mod
 	if(action == GLFW_RELEASE) d = -0.1f;
 	switch(key){
 		case GLFW_KEY_LEFT:
-			camara_pos_delta.x += d;
+			camara_ang_delta.y -= d * 0.1f;
 			break;
 		case GLFW_KEY_RIGHT:
-			camara_pos_delta.x -= d;
+			camara_ang_delta.y += d * 0.1f;
 			break;
 		case GLFW_KEY_DOWN:
-			camara_pos_delta.y += d;
+			camara_ang_delta.x += d * 0.1f;
 			break;
 		case GLFW_KEY_UP:
-			camara_pos_delta.y -= d;
+			camara_ang_delta.x -= d * 0.1f;
 			break;
 		case GLFW_KEY_W:
 			camara_pos_delta.z += d;
@@ -126,6 +138,7 @@ int main() {
     // Cargamos y compilamos los shaders
     Shader rot("Shaders/rotation.vs", "Shaders/rotation.fs");
     // Creamos las primitivas 
+    /*
     Joint head(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, -0.5f, 0.0f), glm::vec3(0.0f, 2.6f, 0.0f)); // Cabeza
     Joint torso(glm::vec3(3.0f, 5.0f, 2.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,0.0f)); // Torso
     Joint left_arm(glm::vec3(3.0f, 0.5f, 0.5f), glm::vec3(0.5f,0.0f,0.0f), glm::vec3(-1.6f, 1.5f, 0.0f));
@@ -141,7 +154,8 @@ int main() {
     torso.add_children(&right_leg);
     right_arm.add_children(&tail);
     tail.add_children(&tail2);
-
+    */
+    
     // Z - Buffer, para que no se dibuje algo atras por delante.
     glEnable(GL_DEPTH_TEST);
 
@@ -150,7 +164,7 @@ int main() {
     projection = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 100.0f);
 
     cur_piece = 0;
-    puppet = {&torso, &head, &left_arm, &right_arm, &left_leg, &right_leg, &tail, &tail2};
+    //puppet = {&torso, &head, &left_arm, &right_arm, &left_leg, &right_leg, &tail, &tail2};
 
     // Inicializamos la camara, y las posiciones.
     init();
@@ -201,6 +215,7 @@ int main() {
 	    glfwPollEvents();
 
     } 
+    for(Joint *j : puppet) delete j;
     glfwTerminate();
     return 0;
 }
