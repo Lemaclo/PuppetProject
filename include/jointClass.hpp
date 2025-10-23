@@ -16,7 +16,7 @@ struct Joint{
 	Cube piece;
 	bool selected;
 	vector<Joint *> children;
-	Joint(glm::vec3 scale, glm::vec3 art, glm::vec3 pos);
+	Joint(glm::vec3 scale, glm::vec3 art, glm::vec3 pos, glm::vec3 mag, glm::vec3 Mag);
 	void add_children(Joint *j);
 	void draw(glm::mat4 base, Shader &sh);
 };

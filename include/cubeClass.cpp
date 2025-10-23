@@ -30,12 +30,14 @@ unsigned int indices[]{
 
 Cube::Cube() : Cube(glm::vec3(1.0f,1.0f,1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) {}
 
-Cube::Cube(glm::vec3 _s, glm::vec3 _c){
+Cube::Cube(glm::vec3 _s, glm::vec3 _c, glm::vec3 mag, glm::vec3 Mag){
 	s = _s;
 	c = _c * s;
 	ang = glm::vec3(0.0f, 0.0f, 0.0f);
 	pos = glm::vec3(0.0f, 0.0f, 0.0f);
 	base = glm::mat4(1.0f);
+	min_ang = mag;
+	max_ang = Mag;
 
 	// Vertex Array
 	glGenVertexArrays(1, &VAO);
@@ -84,7 +86,9 @@ void Cube::set_pos(glm::vec3 t){
 void Cube::translate(glm::vec3 t){
 	pos += t;
 }
-void Cube::set_angles(glm::vec3 t){
+void Cube::set_angles(glm::vec3 &t){
+	t = min(t, max_ang);
+	t = max(t, min_ang)
 	ang = t;
 }
 void Cube::rotate(glm::vec3 t){

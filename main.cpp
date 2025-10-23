@@ -1,4 +1,6 @@
 #include <iostream>
+#include <string>
+#include <fstream>
 #include <cmath>
 #include <vector>
 #include "include/glad/glad.h"
@@ -25,25 +27,27 @@ glm::vec3 piece_ang, piece_ang_delta;
 int cur_piece;
 vector<Joint *> puppet; 
 
-void init(){
+void init(string file){
 	camara_pos = glm::vec3(0.0f, 2.0f, -15.0f);
 	camara_ang = glm::vec3(0.0f, 0.0f, 0.0f);
 	camara_pos_delta = glm::vec3(0.0f, 0.0f, 0.0f);
 	camara_ang_delta = glm::vec3(0.0f, 0.0f, 0.0f);
 	piece_ang = glm::vec3(0.0f, 0.0f, 0.0f);
 	piece_ang_delta = glm::vec3(0.0f, 0.0f, 0.0f);
-	int n; cin  >> n;
+	ifstream f(file);
+	int n; f >> n;
 	for(int i=0;i<n;i++){
-		float sx,sy,sz; cin >> sx >> sy >> sz;
-		float cx,cy,cz; cin >> cx >> cy >> cz;
-		float px,py,pz; cin >> px >> py >> pz;
+		float sx,sy,sz; f >> sx >> sy >> sz;
+		float cx,cy,cz; f >> cx >> cy >> cz;
+		float px,py,pz; f >> px >> py >> pz;
 		puppet.push_back(new Joint(glm::vec3(sx,sy,sz), glm::vec3(cx,cy,cz), glm::vec3(px,py,pz)));
 	}
 	for(int i=1;i<n;i++){
-		int u, v; cin >> u >> v;
+		int u, v; f >> u >> v;
 		u--; v--;
 		puppet[u]->add_children(puppet[v]);
 	}
+	f.close();
 }
 
 
@@ -137,24 +141,6 @@ int main() {
 
     // Cargamos y compilamos los shaders
     Shader rot("Shaders/rotation.vs", "Shaders/rotation.fs");
-    // Creamos las primitivas 
-    /*
-    Joint head(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, -0.5f, 0.0f), glm::vec3(0.0f, 2.6f, 0.0f)); // Cabeza
-    Joint torso(glm::vec3(3.0f, 5.0f, 2.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,0.0f)); // Torso
-    Joint left_arm(glm::vec3(3.0f, 0.5f, 0.5f), glm::vec3(0.5f,0.0f,0.0f), glm::vec3(-1.6f, 1.5f, 0.0f));
-    Joint right_arm(glm::vec3(3.0f, 0.5f, 0.5f), glm::vec3(-0.5f,0.0f,0.0f), glm::vec3(1.6f, 1.5f, 0.0f));
-    Joint left_leg(glm::vec3(0.5f, 6.5f, 0.7f), glm::vec3(0.0f,0.5f,0.0f), glm::vec3(-1.0f, -2.6f, 0.0f)); 
-    Joint right_leg(glm::vec3(0.5f, 6.5f, 0.7f), glm::vec3(0.0f,0.5f,0.0f), glm::vec3(1.0f, -2.6f, 0.0f)); 
-    Joint tail(glm::vec3(3.0f, 0.5f, 0.5f), glm::vec3(-0.5f,0.0f,0.0f), glm::vec3(1.5f, 0.0f, 0.0f));
-    Joint tail2(glm::vec3(3.0f, 0.5f, 0.5f), glm::vec3(-0.5f,0.0f,0.0f), glm::vec3(1.5f, 0.0f, 0.0f));
-    torso.add_children(&head);
-    torso.add_children(&left_arm);
-    torso.add_children(&right_arm);
-    torso.add_children(&left_leg);
-    torso.add_children(&right_leg);
-    right_arm.add_children(&tail);
-    tail.add_children(&tail2);
-    */
     
     // Z - Buffer, para que no se dibuje algo atras por delante.
     glEnable(GL_DEPTH_TEST);
@@ -167,7 +153,7 @@ int main() {
     //puppet = {&torso, &head, &left_arm, &right_arm, &left_leg, &right_leg, &tail, &tail2};
 
     // Inicializamos la camara, y las posiciones.
-    init();
+    init("puppet.txt");
     // Configuramos la funcion de input
     glfwSetKeyCallback(window, handle_input);
 

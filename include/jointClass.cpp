@@ -1,7 +1,7 @@
 #include "jointClass.hpp"
 
-Joint::Joint(glm::vec3 scale, glm::vec3 art, glm::vec3 pos){
-	piece = Cube(scale, art);
+Joint::Joint(glm::vec3 scale, glm::vec3 art, glm::vec3 pos, glm::vec3 mag, glm::vec3 Mag){
+	piece = Cube(scale, art, mag, Mag);
 	piece.set_pos(pos);
 	selected = false;
 }
