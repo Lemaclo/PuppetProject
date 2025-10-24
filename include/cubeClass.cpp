@@ -28,7 +28,8 @@ unsigned int indices[]{
 };
 
 
-Cube::Cube() : Cube(glm::vec3(1.0f,1.0f,1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) {}
+Cube::Cube() : Cube(glm::vec3(1.0f,1.0f,1.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(-90.0f,-90.0f,-90.0f), glm::vec3(90.0f, 90.0f, 90.0f)) {}
 
 Cube::Cube(glm::vec3 _s, glm::vec3 _c, glm::vec3 mag, glm::vec3 Mag){
 	s = _s;
@@ -88,7 +89,7 @@ void Cube::translate(glm::vec3 t){
 }
 void Cube::set_angles(glm::vec3 &t){
 	t = min(t, max_ang);
-	t = max(t, min_ang)
+	t = max(t, min_ang);
 	ang = t;
 }
 void Cube::rotate(glm::vec3 t){

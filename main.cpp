@@ -40,7 +40,13 @@ void init(string file){
 		float sx,sy,sz; f >> sx >> sy >> sz;
 		float cx,cy,cz; f >> cx >> cy >> cz;
 		float px,py,pz; f >> px >> py >> pz;
-		puppet.push_back(new Joint(glm::vec3(sx,sy,sz), glm::vec3(cx,cy,cz), glm::vec3(px,py,pz)));
+		float mx, Mx, my, My, mz, Mz; f >> mx >> Mx >> my >> My >> mz >> Mz;
+		mx = glm::radians(mx); Mx = glm::radians(Mx);
+		my = glm::radians(my); My = glm::radians(My);
+		mz = glm::radians(mz); Mz = glm::radians(Mz);
+		puppet.push_back(new Joint(glm::vec3(sx,sy,sz), glm::vec3(cx,cy,cz), 
+					glm::vec3(px,py,pz), glm::vec3(mx, my, mz), 
+					glm::vec3(Mx,My,Mz)));
 	}
 	for(int i=1;i<n;i++){
 		int u, v; f >> u >> v;
@@ -100,6 +106,21 @@ void handle_input(GLFWwindow *window, int key, int scancode, int action, int mod
 			    piece_ang = puppet[cur_piece]->piece.ang;
 			}
 			break;
+		case GLFW_KEY_M:
+			if(action == GLFW_PRESS){
+			    puppet[cur_piece]->selected = false;
+			    cur_piece--;
+			    if(cur_piece < 0) cur_piece = puppet.size() - 1;
+			    piece_ang = puppet[cur_piece]->piece.ang;
+			}
+			break;
+		case GLFW_KEY_B:
+			if(action == GLFW_PRESS){
+			    puppet[cur_piece]->selected = false;
+			    cur_piece = 8; // Pelvis, root
+			    piece_ang = puppet[cur_piece]->piece.ang;
+			}
+			break;
 		case GLFW_KEY_R:
 			piece_ang = glm::vec3(0.0f, 0.0f, 0.0f);
 			break;
@@ -154,6 +175,7 @@ int main() {
 
     // Inicializamos la camara, y las posiciones.
     init("puppet.txt");
+    //init("free_puppet.txt");
     // Configuramos la funcion de input
     glfwSetKeyCallback(window, handle_input);
 
@@ -179,7 +201,7 @@ int main() {
 
 	    puppet[cur_piece]->piece.set_angles(piece_ang);
 	    puppet[cur_piece]->selected = true;
-	    puppet[0]->draw(glm::mat4(1.0f), rot);
+	    puppet[8]->draw(glm::mat4(1.0f), rot);
 	    /*
 	    for(int i=0;i<puppet.size();i++){
 		    if(i == cur_piece){
