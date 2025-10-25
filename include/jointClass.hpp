@@ -1,3 +1,7 @@
+/*
+ * Esta clase implementa un cubo con jerarquia, y un metodo para dibujar
+ * a una articulacion y todas las que estan conectadas a el (con una dfs)
+ */
 #ifndef JOINT
 #define JOINT
 
@@ -14,7 +18,7 @@ using namespace std;
 
 struct Joint{
 	Cube piece;
-	bool selected;
+	bool selected; // Esto es para iluminarla si esta seleccionada
 	vector<Joint *> children;
 	Joint(glm::vec3 scale, glm::vec3 art, glm::vec3 pos, glm::vec3 mag, glm::vec3 Mag);
 	void add_children(Joint *j);

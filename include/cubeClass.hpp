@@ -1,3 +1,7 @@
+/* 
+ * Esta clase define las primitivas de cubo y metodos auxiliares para modificarlas.
+ * Abstrae todo lo relacionado a los Vertex Buffers y Vertex Arraya
+ */
 #ifndef CUBE
 #define CUBE
 
@@ -19,7 +23,8 @@ struct Cube{
 	glm::mat4 trans, base; // Matriz de transformacion local
 	Cube();
 	Cube(glm::vec3 _s, glm::vec3 _c, glm::vec3 mag, glm::vec3 Mag);
-	void draw(Shader &sh);
+	void draw(Shader &sh); //Dibuja la primitiva
+	// Rota y mueve la primitiva.
 	void set_pos(glm::vec3 t);
 	void translate(glm::vec3 t);
 	void set_angles(glm::vec3 &t);

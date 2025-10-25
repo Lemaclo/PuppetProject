@@ -1,5 +1,6 @@
 #include "cubeClass.hpp"
 
+// Vertices de la primitiva cubo
 float vertices[] = {
 	// Posicion x y z	 // Colores r g b
 	-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -12,6 +13,7 @@ float vertices[] = {
 	0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f
 };
 
+// Para el Element Buffer Array
 unsigned int indices[]{
 	0, 1, 3, // L
 	0, 2, 3,
@@ -32,6 +34,8 @@ Cube::Cube() : Cube(glm::vec3(1.0f,1.0f,1.0f), glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(-90.0f,-90.0f,-90.0f), glm::vec3(90.0f, 90.0f, 90.0f)) {}
 
 Cube::Cube(glm::vec3 _s, glm::vec3 _c, glm::vec3 mag, glm::vec3 Mag){
+	// Creamos el VAO y VBO asociado a una primitiva de cubo nueva
+
 	s = _s;
 	c = _c * s;
 	ang = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -57,6 +61,7 @@ Cube::Cube(glm::vec3 _s, glm::vec3 _c, glm::vec3 mag, glm::vec3 Mag){
 	// Vertex Attributes: Posicion
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	
 	// Color
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
 	glEnableVertexAttribArray(1);
@@ -65,21 +70,24 @@ Cube::Cube(glm::vec3 _s, glm::vec3 _c, glm::vec3 mag, glm::vec3 Mag){
 
 void Cube::draw(Shader &sh){
 	// Inicializamos la matriz de transformacion local.
-	trans = base;
+	trans = base; // Base es la transformacion de su padre
+	// Movemos a la posicion final
 	trans = glm::translate(trans, pos);
-	// trans = glm::translate(trans, c); // Deshacemos
 	// Rotamos
 	trans = glm::rotate(trans, ang.x, glm::vec3(1.0f,0.0f,0.0f));
 	trans = glm::rotate(trans, ang.y, glm::vec3(0.0f,1.0f,0.0f));
 	trans = glm::rotate(trans, ang.z, glm::vec3(0.0f,0.0f,1.0f));
-	trans = glm::translate(trans, -1.0f * c); // Movemos poco
+	trans = glm::translate(trans, -1.0f * c); // Movemos para que rote alrededor de un punto
 	trans = glm::scale(trans, s); // Escalamos
-	sh.setMat4("model", trans);
+	sh.setMat4("model", trans); // Pasamos la matriz como uniforme al shader
+	// Dibujamos.
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
+// Funciones auxiliares para cambiar la posicion y el angulo de la primitiva.
+// Creo que nunca use las de posicion.
 void Cube::set_pos(glm::vec3 t){
 	pos = t;
 }
@@ -88,7 +96,7 @@ void Cube::translate(glm::vec3 t){
 	pos += t;
 }
 void Cube::set_angles(glm::vec3 &t){
-	t = min(t, max_ang);
+	t = min(t, max_ang); // Aqui hacemos validos los limites.
 	t = max(t, min_ang);
 	ang = t;
 }

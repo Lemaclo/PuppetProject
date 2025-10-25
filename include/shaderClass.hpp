@@ -1,3 +1,9 @@
+/*
+ * Esta clase abstrae todo el proceso de creacion de los shaders.
+ * Implementa un constructor que lee los shaders de archivos, los
+ * compila, y los linkea al programa princial.
+ * Algo que no hice fue que escupa los errores de compilacion de los shaders.
+ */
 #ifndef SHADER
 #define SHADER
 
@@ -26,7 +32,6 @@ struct Shader{
 	void setInt(const string &name, int val);
 	void setFloat(const string &name, float val);
 	void setMat4(const string &name, const glm::mat4 &val);
-	void checkCompileErrors(GLuint shader, string type);
 };
 
 #endif
